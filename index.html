@@ -110,6 +110,7 @@
         /* 表格容器 */
         .table-container {
             max-height: 600px;
+            max-width: 100vw; /* 允许撑满视口宽度 */
             overflow: auto;
             border: 1px solid #ddd;
             margin-top: 10px;
@@ -121,7 +122,9 @@
             border-collapse: collapse;
             table-layout: fixed;
             width: 100%;
-            min-width: 800px;
+            min-width: auto !important; /* 移除固定最小宽度 */
+            width: 100%;
+            table-layout: auto; /* 改为自动布局，更灵活 */;
         }
 
         /* 冻结表头 */
@@ -387,7 +390,7 @@
             <!-- 修改标题为两行居中 -->
             <h1 class="page-title">
                 <span class="title-line-1">幸福久久（尊享版）终身寿险（分红型）</span>
-                <span class="title-line-2">利益演示表<a href="javascript:void(0)" id="versionLink" class="version-link">V1.4</a></span>
+                <span class="title-line-2">利益演示表<a href="javascript:void(0)" id="versionLink" class="version-link">V1.5</a></span>
                 <span class="title-line-3">仅限内部学习交流，禁止外传</span>
             </h1>
             
@@ -494,14 +497,14 @@
                     <table class="result-table">
                         <thead>
                             <tr>
-                                <th style="width: 40px;">年度</th>
-                                <th style="width: 40px;">年龄</th>
-                                <th style="width: 80px;">年度保费</th>
-                                <th style="width: 80px;">累计保费</th>
-                                <th style="width: 80px;">现金价值</th>
-                                <th style="width: 80px;">累计红利</th>
-                                <th style="width: 90px;">生存总利益</th>
-                                <th style="width: 50px;">当年收益率</th>
+                                <th style="width: 35px; min-width: 35px;">年度</th>
+                                <th style="width: 35px; min-width: 35px;">年龄</th>
+                                <th style="width: 65px; min-width: 65px;">年度保费</th>
+                                <th style="width: 65px; min-width: 65px;">累计保费</th>
+                                <th style="width: 75px; min-width: 75px;">现金价值</th>
+                                <th style="width: 75px; min-width: 75px;">累计红利</th>
+                                <th style="width: 85px; min-width: 85px;">生存总利益</th>
+                                <th style="width: 55px; min-width: 55px;">当年收益率</th>
                             </tr>
                         </thead>
                         <tbody id="resultBody">
@@ -1015,6 +1018,7 @@
         }
 // 更新日志数据 - 你可以在这里修改内容
 const changelogData = [
+    { date: "2025-12-10", content: "V1.5优化表格宽度" },
     { date: "2025-12-10", content: "V1.4优化界面布局" },
     { date: "2025-12-09", content: "V1.3添加更新日志功能" },
     { date: "2025-12-03", content: "V1.2冻结表格首行首列" },
