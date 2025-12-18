@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>利益演示表</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>window.injectInfo = { env: "PROD" };</script>
+    <script>window.publicPath = "https://gw.alipayobjects.com/render/p/yuyan/180023180006000310/";</script>
+    <script defer src="https://cdn.tailwindcss.com"></script>
+    <style>
+/* 交费期间按钮数据可用性指示点 */
+.payment-button .absolute {
+    pointer-events: none;
+}
+
+/* 数据可用性颜色编码 */
+.bg-green-500 { background-color: #10b981; } /* 数据完整 */
+.bg-yellow-500 { background-color: #f59e0b; } /* 数据部分 */
+.bg-gray-400 { background-color: #9ca3af; } /* 数据暂缺 */
+
+/* 列显示/隐藏控制 */
+.annuity-column, .bonus-column {
+    display: table-cell;
+}
+
+/* 久久险种：隐藏年金列 */
+.product-forever .annuity-column {
+    display: none;
+}
+
+/* 满满险种：隐藏红利列 */
+.product-full .bonus-column {
+    display: none;
+}
+
+/* 年年险种：显示所有列 */
+.product-year .annuity-column,
+.product-year .bonus-column {
+    display: table-cell;
+}
+
+/* 模态框样式 */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 8px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 20px 20px 10px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #1f2937;
+}
+
+.close-modal {
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+}
+
+.close-modal:hover {
+    color: #374151;
+}
+
+.modal-body {
+    padding: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.modal-footer {
+    padding: 10px 20px 20px;
+    text-align: right;
+}
+
+/* 更新日志列表样式 */
+#changelogList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#changelogList li {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+#changelogList li:last-child {
+    border-bottom: none;
+}
+
+.changelog-date {
+    font-weight: 600;
+    color: #3b82f6;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.changelog-content {
+    color: #374151;
+}
+
+        /* 占位符行样式 */
+        .placeholder-row {
+            background-color: #f9f9f9 !important;
+            color: #999 !important;
+            font-style: italic !important;
+        }
+
+        /* 表格容器 */
+        .table-container {
+            max-height: 780px;
+            max-width: 100vw; /* 允许撑满视口宽度 */
+            overflow: auto;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        /* 表格 */
+        .result-table {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+            min-width: auto !important; /* 移除固定最小宽度 */
+            width: 100%;
+            table-layout: auto; /* 改为自动布局，更灵活 */;
+        }
+
+        /* 冻结表头 */
+        .result-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+            font-weight: 600;
+        }
+
+        /* 冻结第一列 */
+        .result-table th:first-child,
+        .result-table td:first-child {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+            background: #f8f9fa;
+            border-right: 2px solid #ddd;
+        }
+
+        /* 左上角单元格特殊处理 - 同时冻结行和列 */
+        .result-table thead th:first-child {
+            z-index: 25;
+            left: 0;
+            background: #e9ecef;
+        }
+
+        /* 基本样式 */
+        .result-table th, .result-table td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            text-align: right;
+            white-space: nowrap;
+            font-size: 12px;
+            min-width: 50px;
+        }
+
+        .result-table th:first-child,
+        .result-table td:first-child {
+            text-align: center;
+            min-width: 40px;
+        }
+
+        .result-table th:nth-child(2),
+        .result-table td:nth-child(2) {
+            text-align: center;
+            min-width: 40px;
+        }
+
+        .result-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .result-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        /* 确保冻结列在悬浮时也有背景色 */
+        .result-table tbody tr:hover td:first-child {
+            background-color: #e6f3ff;
+        }
+
+        /* 表格样式优化 */
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin: 0;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .premium-button {
+            transition: all 0.2s ease;
+        }
+        .premium-button:hover {
+            transform: scale(1.05);
+        }
+        .premium-button.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .payment-button {
+            transition: all 0.2s ease;
+        }
+        .payment-button:hover {
+            transform: scale(1.05);
+        }
+        .payment-button.active {
+            background-color: #10b981;
+            color: white;
+        }
+        .gender-button {
+            transition: all 0.2s ease;
+        }
+        .gender-button:hover {
+            transform: scale(1.05);
+        }
+        .gender-button.active {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        input[type="range"] {
+            --track-color: rgba(0,0,0,0.1);
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            background-color: #3b82f6;
+        }
+        input[type="range"]::-moz-range-thumb {
+            background-color: #3b82f6;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .data-source {
+            color: #22c55e;
+            margin-top: 10px;
+            font-size: 12px;
+            text-align: right;
+        }
+        /* 分享模态框样式 */
+        #shareModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .share-modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .share-url-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+        }
+        .copy-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        .qrcode-container {
+            width: 150px;
+            height: 150px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            border-radius: 4px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .modal-btn.primary {
+            background: #10b981;
+            color: white;
+        }
+        .modal-btn.secondary {
+            background: #6b7280;
+            color: white;
+        }
+        .modal-btn:hover {
+            opacity: 0.9;
+        }
+        /* 修改标题样式为两行居中 */
+        .page-title {
+            text-align: center;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+        .title-line-1 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+            display: block;
+        }
+        .title-line-2 {
+            font-size: 14px;
+            font-weight: normal;
+            color: #ff4444;
+            display: block;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        /* 版本链接样式 */
+        .version-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-left: 4px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .version-link:hover {
+            color: #2563eb;
+            text-decoration: none;
+        }
+/* === 表格颜色优化 === */
+
+/* 1. 表头样式：蓝底白字加粗 */
+.result-table thead th {
+    background-color: #3b82f6 !important; /* 蓝色背景 */
+    color: white !important; /* 白色文字 */
+    font-weight: 700 !important; /* 加粗 */
+    border-bottom: 2px solid #1e40af !important;
+}
+
+/* 2. 首列样式：蓝底白字加粗 */
+.result-table td:first-child,
+.result-table th:first-child {
+    background-color: #3b82f6 !important; /* 蓝色背景 */
+    color: white !important; /* 白色文字 */
+    font-weight: 700 !important; /* 加粗 */
+    border-right: 2px solid #1e40af !important;
+}
+
+/* 3. 左上角单元格特殊处理（同时属于首行和首列） */
+.result-table thead th:first-child {
+    background-color: #1e40af !important; /* 更深的蓝色 */
+    z-index: 30; /* 提高层级确保显示 */
+}
+
+/* 4. 特定年份行样式：红底白字加粗 */
+.highlight-year {
+    background-color: #dc2626 !important; /* 红色背景 */
+    color: white !important; /* 白色文字 */
+    font-weight: 700 !important; /* 加粗 */
+}
+
+.highlight-year td {
+    border-color: #b91c1c !important; /* 深红色边框 */
+}
+
+/* 5. 最后一列加.result-table td:last-child {
+.result-table td:last-child {
+    font-weight: 700 !important; /* 加粗 */
+    font-size: 11px !important; /* 稍微加大字号 */
+}
+
+/* 6. 确保悬浮效果在特殊行上也能显示 */
+.result-table tbody tr:hover:not(.highlight-year) {
+    background-color: #f0f7ff !important;
+}
+
+.result-table tbody tr.highlight-year:hover {
+    background-color: #ef4444 !important; /* 悬浮时稍亮的红色 */
+}
+
+/* 7. 冻结列在特殊行中的样式 */
+.result-table tbody tr.highlight-year td:first-child {
+    background-color: #dc2626 !important; /* 首列在特殊行中也用红色 */
+    border-right-color: #b91c1c !important;
+}
+
+.result-table tbody tr:hover td:first-child:not(.highlight-year) {
+    background-color: #2563eb !important; /* 悬浮时稍亮的蓝色 */
+}
+/* 添加在style标签中 */
+.conditional-column {
+    display: table-cell;
+}
+
+/* 当满满险种时，隐藏生存总利益列 */
+.product-full .conditional-column {
+    display: none;
+}
+
+/* 调整满满险种的列宽 */
+.product-full .result-table th:nth-child(4),
+.product-full .result-table td:nth-child(4) {
+    width: 80px; /* 累计保险列稍宽 */
+}
+
+.product-full .result-table th:nth-child(5),
+.product-full .result-table td:nth-child(5) {
+    width: 70px; /* 年金列 */
+}
+    </style>
+</head>
+<body>
+    <div id="container" class="container bg-white rounded-lg shadow-lg w-full" style="margin: 0px !important;">
+        <div class="p-4">
+            <!-- 修改标题为两行居中 -->
+            <h1 class="page-title">
+                <span class="title-line-1">利益演示表<a href="javascript:void(0)" id="versionLink" class="version-link">V2.2</a></span>
+                <span class="title-line-2">仅限内部学习交流，禁止外传</span>
+            </h1>
+
+<!-- 险种选择 - 添加在性别行上方 -->
+<div class="mb-4 flex items-center">
+    <label class="text-sm font-medium text-gray-700 mr-3 whitespace-nowrap" style="min-width: 60px;">
+        <span class="material-icons text-sm mr-1" style="color: #666;">category</span>险种
+    </label>
+    <div class="flex gap-2 flex-1">
+        <label class="product-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer active flex-1 text-center" data-product="forever">
+            <input type="radio" name="product" value="forever" class="hidden" checked>
+            久久
+        </label>
+        <label class="product-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center" data-product="full">
+            <input type="radio" name="product" value="full">
+            满满
+        </label>
+        <label class="product-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center" data-product="year">
+            <input type="radio" name="product" value="year">
+            年年
+        </label>
+    </div>
+</div>
+            
+            <!-- 性别选择 - 一行显示 -->
+<div class="mb-4 flex items-center">
+    <label class="text-sm font-medium text-gray-700 mr-3 whitespace-nowrap" style="min-width: 60px;">
+        <span class="material-icons text-sm mr-1">wc</span>性别
+    </label>
+    <div class="flex gap-2 flex-1">
+        <label class="gender-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center" data-gender="male">
+            <input type="radio" name="gender" value="male" class="hidden">
+            <span class="material-icons text-sm mr-1">man</span>男
+        </label>
+        <label class="gender-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer active flex-1 text-center" data-gender="female">
+            <input type="radio" name="gender" value="female" class="hidden" checked>
+            <span class="material-icons text-sm mr-1">woman</span>女
+        </label>
+    </div>
+</div>
+
+            <!-- 投保年龄 - 修改为一行显示 -->
+<!-- 投保年龄 - 确保有图标 -->
+<div class="mb-4 flex items-center">
+    <label class="text-sm font-medium text-gray-700 mr-3 whitespace-nowrap" style="min-width: 60px;">
+        <span class="material-icons text-sm mr-1" style="color: #666;">person</span>投保年龄
+    </label>
+    <div class="flex items-center space-x-2 flex-1">
+        <input type="range" id="age" min="0" max="80" value="50" class="flex-1">
+        <span id="ageValue" class="text-sm font-medium w-12 text-center">50岁</span>
+    </div>
+</div>
+
+<!-- 交费期间选择 - 添加数据可用性指示 -->
+<div class="mb-4 flex items-center">
+    <label class="text-sm font-medium text-gray-700 mr-3 whitespace-nowrap" style="min-width: 60px;">
+        <span class="material-icons text-sm mr-1" style="color: #666;">schedule</span>交费期间
+    </label>
+    <div class="flex gap-2 flex-1">
+        <button class="payment-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center relative" data-payment="3" title="3年交数据（暂未收录）">
+            3年
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-gray-400 rounded-full" title="数据暂未收录"></span>
+        </button>
+        <button class="payment-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center relative" data-payment="4" title="4年交数据（暂未收录）">
+            4年
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-gray-400 rounded-full" title="数据暂未收录"></span>
+        </button>
+        <button class="payment-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer active flex-1 text-center relative" data-payment="5" title="5年交数据（完整收录）">
+            5年
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full" title="数据完整收录"></span>
+        </button>
+        <button class="payment-button flex items-center justify-center py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all cursor-pointer flex-1 text-center relative" data-payment="6" title="6年交数据（暂未收录）">
+            6年
+            <span class="absolute -top-1 -right-1 w-2 h-2 bg-gray-400 rounded-full" title="数据暂未收录"></span>
+        </button>
+    </div>
+</div>
+
+            <!-- 年交保费 -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <span class="material-icons text-sm mr-1">payments</span>年交保费
+                </label>
+                
+                <!-- 快速选择按钮 -->
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                    <button class="premium-button py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all" data-premium="10000" data-testid="premium-10000">
+                        1万
+                    </button>
+                    <button class="premium-button py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all" data-premium="50000" data-testid="premium-50000">
+                        5万
+                    </button>
+                    <button class="premium-button py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all active" data-premium="100000" data-testid="premium-100000">
+                        10万
+                    </button>
+                    <button class="premium-button py-2 px-3 rounded-lg border border-gray-300 text-sm font-medium transition-all" data-premium="500000" data-testid="premium-500000">
+                        50万
+                    </button>
+                </div>
+                
+                <!-- 自定义输入框 -->
+                <div class="flex items-center space-x-2">
+                    <input type="number" id="customPremium" placeholder="自定义年交保费" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" data-testid="custom-premium">
+                    <span class="text-sm text-gray-600">元</span>
+                </div>
+            </div>
+
+            <!-- 计算按钮 -->
+            <div class="mb-6">
+                <button id="calculateBtn" class="w-full bg-blue-500 text-white py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors" data-testid="calculate-btn">
+                    <span class="material-icons text-sm mr-1">calculate</span>计算利益
+                </button>
+            </div>
+
+            <!-- 加载动画 -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p class="text-gray-600 mt-2">正在加载真实数据，请勿刷新...</p>
+            </div>
+
+<!-- 计算结果 -->
+<div id="resultSection" class="hidden">
+    <div class="flex justify-between items-center mb-3">
+        <h2 class="text-lg font-bold text-gray-800">年度利益明细</h2>
+        <span class="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">单位：元</span>
+    </div>
+
+    <div class="table-container">
+        <table class="result-table">
+            <thead>
+                <tr>
+                    <th style="width: 35px; min-width: 30px;">年度</th>
+                    <th style="width: 35px; min-width: 30px;">年龄</th>
+                    <th style="width: 65px; min-width: 60px;">年交保费</th>
+                    <th style="width: 65px; min-width: 60px;">累计保费</th>
+                    <th style="width 75px; min-width: 60px;" class="annuity-column">年金</th>
+                    <th style="width: 75px; min-width: 60px;" class="bonus-column">累计红利</th>
+                    <th style="width: 75px; min-width: 60px;">现金价值</th>
+                    <th style="width: 85px; min-width: 60px;">生存总利益</th>
+                    <th style="width: 55px; min-width: 50px;">年增长率</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody">
+                <!-- 数据将由JavaScript填充 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mb-3 flex gap-2">
+        <button id="exportBtn" class="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors">
+<span class="material-icons text-sm mr-1">download</span>导出Excel
+        </button>
+        <button id="shareBtn" class="flex-1 bg-green-600 text-white py-2 px-3 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+            <span class="material-icons text-sm mr-1">share</span>微信分享
+        </button>
+    </div>
+
+    <div class="data-source">✅ 数据来源：<span id="dataSourceText">json数据库</span></div>
+</div>
+        </div>
+    </div>
+
+<!-- 更新日志模态框 -->
+<div id="changelogModal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>更新日志</h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <ul id="changelogList">
+                <!-- 更新日志内容将由JavaScript动态生成 -->
+            </ul>
+        </div>
+        <div class="modal-footer">
+            <button id="closeChangelog" class="modal-btn primary">关闭</button>
+        </div>
+    </div>
+</div>
+<script>
+    // 全局变量
+    let insuranceDatabase = null;
+    let currentProduct = 'forever';
+    let currentAge = 50;
+    let currentGender = 'female';
+    let currentPaymentYears = 5;
+    let currentAnnualPremium = 100000;
+
+    // 表格列结构模板 - 修复字符串引号
+    const productTableTemplates = {
+        'forever': ['年度', '年龄', '年度保费', '累计保费', '现金价值', '累计红利', '生存总利益', '当年收益率'],
+        'full': ['年度', '年龄', '年交保费', '累计保险', '年金', '现金价值', '生存总利益', '年增长率'],
+        'year': ['年度', '年龄', '年交保费', '累计保费', '养老年金', '现金价值', '累计红利', '生存总利益', '年增长率']
+    };
+
+// 1. 加载数据函数 - 修改为读取TXT文件
+async function loadInsuranceData(productType = currentProduct, paymentYears = currentPaymentYears) {
+    try {
+        // 根据险种和交费期间构建TXT文件名
+        const productNameMap = {
+            'forever': '幸福久久',
+            'full': '幸福满满', 
+            'year': '幸福年年'
+        };
+        // 修改1：文件扩展名改为 .txt
+        const fileName = `${productNameMap[productType]}_现金价值表_${paymentYears}年交.txt`;
+        // 修改2：确认TXT文件存放的路径，例如在 index_files/data/ 目录下
+        const dataFile = `index_files/data/${fileName}`; 
+        
+        console.log(`正在加载TXT数据文件: ${dataFile}`);
+        const response = await fetch(dataFile);
+        if (!response.ok) {
+            throw new Error(`TXT文件未找到: ${fileName}`);
+        }
+        
+        // 修改3：获取响应文本而非JSON
+        const textData = await response.text();
+        console.log("TXT文件加载成功，开始解析...");
+        
+        // 清空之前的数据库
+        insuranceDatabase = {};
+
+        // 修改4：核心解析逻辑 - 将文本按行分割并处理
+        const lines = textData.split('\n');
+        
+        for (const line of lines) {
+            // 跳过空行和注释行（如果存在）
+            if (line.trim() === '' || line.startsWith('//')) {
+                continue;
+            }
+            
+            // 修改5：按逗号分割每一行数据
+            const fields = line.split(',');
+            // 确保有9个字段（根据您的格式）
+            if (fields.length === 9) {
+                const gender = fields[0].trim();
+                const applicationAge = fields[1].trim(); // 投保年龄
+                
+                // 修改6：构建唯一键，格式如 "男_0"
+                const dataKey = `${gender}_${applicationAge}`;
+                
+                // 如果这个键还不存在，初始化其数据结构
+                if (!insuranceDatabase[dataKey]) {
+                    insuranceDatabase[dataKey] = {
+                        benefit_data: [] // 保持与原JSON一致的结构
+                    };
+                }
+                
+                // 修改7：将当前行数据转换为对象，并存入 benefit_data 数组
+                // 注意：字段顺序需与您的TXT文件完全一致
+                insuranceDatabase[dataKey].benefit_data.push({
+                    "保单年度": parseFloat(fields[2]) || 0,
+                    "年龄": parseFloat(fields[3]) || 0,
+                    "年交保费": parseFloat(fields[4]) || 0,
+                    "累计保费": parseFloat(fields[5]) || 0,
+                    "年金": parseFloat(fields[6]) || 0,
+                    "累计红利": parseFloat(fields[7]) || 0,
+                    "现金价值": parseFloat(fields[8]) || 0
+                });
+            }
+        }
+
+        console.log(`✅ ${productType}_${paymentYears}年交TXT数据解析完成`);
+        console.log(`📊 解析后数据库样例:`, Object.keys(insuranceDatabase).length > 0 ? Object.keys(insuranceDatabase)[0] : "无数据");
+        
+        return insuranceDatabase;
+    } catch (error) {
+        console.error('❌ 加载或解析TXT数据失败:', error);
+        alert(`数据加载失败: ${error.message}\n请检查TXT文件路径和格式是否正确。`);
+        return null;
+    }
+}
+
+// 2. 计算器类 - 统一的计算逻辑
+class InsuranceCalculator {
+    calculateFromRealData(age, paymentYears, annualPremium, totalYears = 50) {
+        if (!insuranceDatabase) {
+            alert("数据未加载");
+            return [];
+        }
+
+        const genderChinese = currentGender === 'female' ? '女' : '男';
+        const ageKey = `${genderChinese}_${age}`;
+        
+        console.log(`🔍🔍 查找数据键: ${ageKey}`);
+        
+        if (!insuranceDatabase[ageKey]) {
+            alert(`未找到${genderChinese}性${age}岁的数据`);
+            console.log(`❌❌ 可用键名:`, Object.keys(insuranceDatabase));
+            return [];
+        }
+
+        const ageData = insuranceDatabase[ageKey];
+        const benefitData = ageData.benefit_data || [];
+        
+        console.log(`📈📈 找到${benefitData.length}年数据`);
+        
+        if (benefitData.length === 0) {
+            alert("该年龄段无数据");
+            return [];
+        }
+
+        const results = [];
+        let previousTotalBenefit = 0;
+        let totalAnnuityReceived = 0;
+
+        for (let year = 1; year <= totalYears && year <= benefitData.length; year++) {
+            const realYearData = benefitData[year - 1];
+            
+            if (!realYearData) {
+                console.log(`⏹⏹⏹️ 第${year}年无数据，停止计算`);
+                break;
+            }
+
+            // 从JSON获取基础数据
+            const yearPremium = year <= paymentYears ? annualPremium : 0;
+            const accumulatedPremium = annualPremium * Math.min(year, paymentYears);
+            
+            // 统一字段名
+            const annuity = Math.round((realYearData.年金 || 0) * (annualPremium / 10000));
+            const bonus = Math.round((realYearData.累计红利 || 0) * (annualPremium / 10000));
+            const cashValue = Math.round((realYearData.现金价值 || 0) * (annualPremium / 10000));
+            
+            // 计算生存总利益
+            totalAnnuityReceived += annuity;
+            const totalBenefit = cashValue + bonus + totalAnnuityReceived;
+
+            // 修正：只有第6年及以后才计算增长率
+            let growthRate = "-";
+            if (year >= 6 && previousTotalBenefit > 0) {
+                const profit = totalBenefit - previousTotalBenefit;
+                if (accumulatedPremium > 0) {
+                    const rate = (profit / accumulatedPremium) * 100;
+                    growthRate = rate.toFixed(2) + "%";
+                    
+                    console.log(`📈📈 第${year}年增长率计算:`, {
+                        当年生存总利益: totalBenefit,
+                        上年生存总利益: previousTotalBenefit,
+                        收益差额: profit,
+                        累计保费: accumulatedPremium,
+                        收益率: growthRate
+                    });
+                }
+            }
+            
+            // 关键修改：必须在保存结果前更新previousTotalBenefit
+            previousTotalBenefit = totalBenefit;
+
+            results.push({
+                year: year,
+                age: age + year - 1,
+                yearPremium: yearPremium,
+                accumulatedPremium: accumulatedPremium,
+                annuity: annuity,
+                bonus: bonus,
+                cashValue: cashValue,
+                totalBenefit: totalBenefit,
+                growthRate: growthRate,
+                totalAnnuityReceived: totalAnnuityReceived
+            });
+            
+            console.log(`📊📊 第${year}年数据:`, {
+                年增长率: growthRate,
+                生存总利益: totalBenefit,
+                上一年生存总利益: previousTotalBenefit
+            });
+        }
+
+        console.log(`✅ 计算完成，共${results.length}年数据`);
+        return results;
+    }
+}
+
+    const calculator = new InsuranceCalculator();
+
+    // 3. 页面初始化 - 合并为一个事件监听器
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log("页面开始初始化...");
+        
+        // 获取DOM元素
+        const ageSlider = document.getElementById('age');
+        const ageValue = document.getElementById('ageValue');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultSection = document.getElementById('resultSection');
+        const resultBody = document.getElementById('resultBody');
+        const loading = document.getElementById('loading');
+
+        // 加载初始数据
+        console.log("开始加载保险数据...");
+        await loadInsuranceData();
+        console.log("保险数据加载完成");
+
+        // 绑定年龄滑块事件
+        ageSlider.addEventListener('input', function() {
+            currentAge = parseInt(this.value);
+            ageValue.textContent = currentAge + '岁';
+            console.log("年龄改为:", currentAge);
+        });
+
+        // 绑定性别按钮事件
+        document.querySelectorAll('.gender-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.gender-button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentGender = this.dataset.gender;
+                console.log("性别改为:", currentGender);
+            });
+        });
+
+// 绑定交费期间按钮事件 - 支持动态数据加载
+document.querySelectorAll('.payment-button').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const selectedPaymentYears = parseInt(this.dataset.payment);
+        
+        // 更新UI状态
+        document.querySelectorAll('.payment-button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentPaymentYears = selectedPaymentYears;
+        
+        console.log("交费期间改为:", currentPaymentYears, "年交");
+        
+        // 立即尝试加载对应数据
+        await loadInsuranceData(currentProduct, currentPaymentYears);
+        
+        // 重新计算利益
+        calculateBenefits();
+    });
+});
+
+        // 绑定保费按钮事件
+        document.querySelectorAll('.premium-button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.premium-button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentAnnualPremium = parseInt(this.dataset.premium);
+                document.getElementById('customPremium').value = '';
+                console.log("年交保费改为:", currentAnnualPremium);
+            });
+        });
+
+        // 绑定自定义保费输入事件
+        const customPremiumInput = document.getElementById('customPremium');
+        if (customPremiumInput) {
+            customPremiumInput.addEventListener('input', function() {
+                if (this.value && !isNaN(this.value) && this.value > 0) {
+                    document.querySelectorAll('.premium-button').forEach(btn => btn.classList.remove('active'));
+                    currentAnnualPremium = parseInt(this.value);
+                    console.log("自定义保费:", currentAnnualPremium);
+                }
+            });
+        }
+
+// 绑定险种切换 - 支持动态数据加载
+document.querySelectorAll('.product-button').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        document.querySelectorAll('.product-button').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentProduct = this.dataset.product;
+        console.log("险种改为:", currentProduct);
+        
+        // 重新加载对应数据并计算
+        await loadInsuranceData(currentProduct, currentPaymentYears);
+        calculateBenefits();
+    });
+});
+
+        // 计算按钮事件
+        calculateBtn.addEventListener('click', calculateBenefits);
+
+        // 绑定更新日志事件
+        document.getElementById('versionLink').addEventListener('click', showChangelog);
+        document.querySelector('.close-modal').addEventListener('click', closeChangelog);
+        document.getElementById('closeChangelog').addEventListener('click', closeChangelog);
+        
+        document.getElementById('changelogModal').addEventListener('click', function(e) {
+            if (e.target === this) closeChangelog();
+        });
+
+        console.log("所有事件绑定完成，准备自动计算...");
+        
+        // 自动计算
+        setTimeout(() => {
+            console.log("开始自动计算...");
+            calculateBtn.click();
+        }, 1000);
+    });
+
+// 4. 计算利益函数
+async function calculateBenefits() {
+    console.log("开始计算利益...");
+    console.log("当前参数:", {
+        险种: currentProduct,
+        交费期间: `${currentPaymentYears}年交`,
+        性别: currentGender,
+        年龄: currentAge,
+        年交保费: currentAnnualPremium
+    });
+    
+    const loading = document.getElementById('loading');
+    const resultSection = document.getElementById('resultSection');
+    const resultBody = document.getElementById('resultBody');
+
+    loading.style.display = 'block';
+    resultSection.classList.add('hidden');
+    resultBody.innerHTML = '';
+
+    // 基本参数验证
+    if (currentAnnualPremium <= 0) {
+        alert("❌ 年交保费必须大于0");
+        loading.style.display = 'none';
+        return;
+    }
+    
+    if (currentAge < 0 || currentAge > 80) {
+        alert("❌ 投保年龄必须在0-80岁之间");
+        loading.style.display = 'none';
+        return;
+    }
+
+    console.log("智能加载数据...");
+    const loadSuccess = await loadInsuranceData(currentProduct, currentPaymentYears);
+    
+    if (!loadSuccess) {
+        loading.style.display = 'none';
+        return;
+    }
+
+    setTimeout(() => {
+        console.log("开始数据计算...");
+        const results = calculator.calculateFromRealData(currentAge, currentPaymentYears, currentAnnualPremium, 50);
+        
+        if (!results || results.length === 0) {
+            loading.style.display = 'none';
+            return;
+        }
+        
+        console.log(`✅ 计算完成，共${results.length}年数据`);
+        
+        // 设置表格类名控制列显示
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            tableContainer.classList.remove('product-forever', 'product-full', 'product-year');
+            tableContainer.classList.add(`product-${currentProduct}`);
+        }
+        
+        displayResults(results);
+        
+        loading.style.display = 'none';
+        resultSection.classList.remove('hidden');
+        console.log("页面更新完成");
+    }, 300);
+}
+      
+// 高亮关键年份配置
+const highlightYearConfig = {
+    'forever': [6, 10, 15, 20, 25, 30, 35, 40,  50],  // 久久：从第6年开始
+    'full': [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],     // 满满：从第5年开始
+    'year': [6, 10, 15, 20, 25, 30, 35, 40, 45, 50]      // 年年：从第6年开始
+};
+
+// 5. 显示结果 - 统一的9列表格
+function displayResults(results) {
+    const resultBody = document.getElementById('resultBody');
+    if (!resultBody) {
+        console.error("未找到resultBody元素");
+        return;
+    }
+    
+    resultBody.innerHTML = '';
+
+    if (!results || results.length === 0) {
+        resultBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">暂无数据</td></tr>';
+        return;
+    }
+
+    // 设置表格类名，控制列显示/隐藏
+    const tableContainer = document.querySelector('.table-container');
+    if (tableContainer) {
+        // 移除所有产品类名
+        tableContainer.classList.remove('product-forever', 'product-full', 'product-year');
+        // 添加当前产品类名
+        tableContainer.classList.add(`product-${currentProduct}`);
+    }
+
+    // 获取当前险种的高亮年份
+    const highlightYears = highlightYearConfig[currentProduct] || highlightYearConfig.forever;
+    console.log(`🎯 ${currentProduct}险种高亮年份:`, highlightYears);
+
+    results.forEach((item, index) => {
+        const row = document.createElement('tr');
+        
+        // 根据险种高亮不同的年份
+        if (highlightYears.includes(item.year)) {
+            row.classList.add('highlight-year');
+            console.log(`🔴 高亮第${item.year}年`);
+        }
+
+        // 格式化数值显示
+        const formatNumber = (num) => {
+            return num.toLocaleString('zh-CN');
+        };
+
+        // 统一的9列表格结构
+        row.innerHTML = `
+            <td style="text-align: center;">${item.year}</td>
+            <td style="text-align: center;">${item.age}</td>
+            <td style="text-align: right;">${formatNumber(item.yearPremium)}</td>
+            <td style="text-align: right;">${formatNumber(item.accumulatedPremium)}</td>
+            <td style="text-align: right;" class="annuity-column">${formatNumber(item.annuity)}</td>
+            <td style="text-align: right;" class="bonus-column">${formatNumber(item.bonus)}</td>
+            <td style="text-align: right;">${formatNumber(item.cashValue)}</td>
+            <td style="text-align: right;">${formatNumber(item.totalBenefit)}</td>
+            <td style="text-align: right;">${item.growthRate}</td>
+        `;
+        
+        resultBody.appendChild(row);
+    });
+
+    // 更新数据来源说明
+    updateDataSourceNote();
+}
+
+// 更新数据来源说明的函数
+function updateDataSourceNote() {
+    const sourceElement = document.getElementById('dataSourceText');
+    if (sourceElement) {
+        let sourceText = '';
+        switch(currentProduct) {
+            case 'forever': sourceText = '幸福久久_现金价值表'; break; // 修改示例
+            case 'full': sourceText = '幸福满满_现金价值表'; break; // 修改示例
+            case 'year': sourceText = '幸福年年_现金价值表'; break; // 修改示例
+        }
+        sourceElement.textContent = sourceText;
+    }
+}
+
+// 更新日志功能
+const changelogData = [
+    { date: "2025-12-18", content: "V2.2久久、满满3、4、5、6年交数据补全。TXT格式" },
+    { date: "2025-12-15", content: "V2.1增加满满3、4年交数据" },
+    { date: "2025-12-12", content: "V2.0增加满满、年年两个险种" },
+    { date: "2025-12-10", content: "V1.5优化表格宽度和颜色" },
+    { date: "2025-12-10", content: "V1.4优化界面布局" },
+    { date: "2025-12-09", content: "V1.3添加更新日志功能" },
+    { date: "2025-12-03", content: "V1.2冻结表格首行首列" },
+    { date: "2025-12-01", content: "V1.1添加5年交完整数据" }
+];
+
+function showChangelog() {
+    const modal = document.getElementById('changelogModal');
+    const list = document.getElementById('changelogList');
+    
+    if (!modal || !list) {
+        console.error("未找到更新日志相关元素");
+        return;
+    }
+    
+    list.innerHTML = '';
+    changelogData.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="changelog-date">${item.date}</span><span class="changelog-content">${item.content}</span>`;
+        list.appendChild(li);
+    });
+    modal.classList.remove('hidden');
+}
+
+function closeChangelog() {
+    const modal = document.getElementById('changelogModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+</script>
+</body>
+</html>
